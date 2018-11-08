@@ -564,8 +564,8 @@ func (api *API) targetMetadata(r *http.Request) (interface{}, *apiError, func())
 	metric := r.FormValue("metric")
 
 	var res []metricMetadata
-Outer:
 	for _, tt := range api.targetRetriever.TargetsActive() {
+	Outer:
 		for _, t := range tt {
 			if limit >= 0 && len(res) >= limit {
 				break
