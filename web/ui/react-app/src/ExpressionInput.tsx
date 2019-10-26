@@ -5,10 +5,6 @@ import {
   InputGroupAddon,
   InputGroupText,
   Input,
-  ListGroup,
-  ListGroupItem,
-  Card,
-  CardHeader,
 } from 'reactstrap';
 
 import Downshift, { ControllerStateAndHelpers } from 'downshift';
@@ -87,8 +83,8 @@ class ExpressionInput extends Component<ExpressionInputProps, ExpressionInputSta
         const matches = this.getSearchMatches(inputValue!, items);
         return !matches.length ? acc : [
           ...acc,
-            <Card tag={ListGroup} key={title}>
-              <CardHeader style={{ fontSize: 13 }}>{title}</CardHeader>
+            <ul className="autosuggest-dropdown-list">
+              <li className="autosuggest-dropdown-header">{title}</li>
               {
                 matches
                   .slice(0, 100) // Limit DOM rendering to 100 results, as DOM rendering is sloooow.
@@ -102,13 +98,13 @@ class ExpressionInput extends Component<ExpressionInputProps, ExpressionInputSta
                       },
                     })
                     return (
-                      <SanitizeHTML tag={ListGroupItem} {...itemProps} allowedTags={['strong']}>
+                      <SanitizeHTML tag={'li'} {...itemProps} allowedTags={['strong']}>
                         {string}
                       </SanitizeHTML>
                     );
                   })
               }
-            </Card>
+            </ul>
         ]
       }, [] as JSX.Element[]) : []
 
