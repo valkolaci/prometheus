@@ -1580,7 +1580,6 @@ func TestOTLPConvertHistogramsToNHCB(t *testing.T) {
 		require.NoError(t, yaml.UnmarshalStrict(out, &got))
 
 		require.True(t, got.OTLPConfig.ConvertHistogramsToNHCB)
-
 	})
 }
 
