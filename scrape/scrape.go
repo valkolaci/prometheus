@@ -623,24 +623,22 @@ func (sp *scrapePool) schemesFromConfig() (validationScheme model.ValidationSche
 		return model.LegacyValidation, model.UnderscoreEscaping, fmt.Errorf("cannot override library model.NameValidationScheme in config with allow-utf-8")
 	}
 
-	defaultValidation := model.NameValidationScheme
+	validationScheme = model.NameValidationScheme
 	if sp.config.MetricNameValidationScheme != "" {
 		switch sp.config.MetricNameValidationScheme{
 			case config.LegacyValidationConfig:
-				defaultValidation = model.LegacyValidation
+				validationScheme = model.LegacyValidation
 			case config.UTF8ValidationConfig:
-				defaultValidation = model.UTF8Validation
+				validationScheme = model.UTF8Validation
 			default:
 				return model.LegacyValidation, model.UnderscoreEscaping, fmt.Errorf("invalid metric name validation scheme, %s", sp.config.MetricNameValidationScheme)
 		}
 	}
 
-	switch defaultValidation {
+	switch validationScheme {
 		case model.LegacyValidation:
-			validationScheme = model.LegacyValidation
 			escapingScheme = model.UnderscoreEscaping
 		case model.UTF8Validation:
-			validationScheme = model.UTF8Validation
 			escapingScheme = model.NoEscaping
 	}
 
@@ -823,8 +821,10 @@ func acceptHeader(sps []config.ScrapeProtocol, scheme model.EscapingScheme) stri
 	weight := len(config.ScrapeProtocolsHeaders) + 1
 	for _, sp := range sps {
 		val := config.ScrapeProtocolsHeaders[sp]
-		// XXXX this will end up adding escaping clauses even when it doesn't make sense, like with v 0.0.1.  is that ok?
-		val += ";" + model.EscapingKey + "=" + scheme.String()
+		// Escaping header is only valid for newer versions of the text formats.
+		if sp == config.PrometheusText1_0_0 || sp == config.OpenMetricsText1_0_0 {
+			val += ";" + model.EscapingKey + "=" + scheme.String()
+		}
 		val += fmt.Sprintf(";q=0.%d", weight)
 		vals = append(vals, val)
 		weight--
