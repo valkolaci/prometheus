@@ -2868,45 +2868,23 @@ func TestScrapeLoopOutOfBoundsTimeError(t *testing.T) {
 }
 
 func TestSchemesFromConfig(t *testing.T) {
-	oldScheme := model.NameValidationScheme
-	defer func() {
-		model.NameValidationScheme = oldScheme
-	}()
-
 	tests := []struct {
 		name                   string
 		config                 config.ScrapeConfig
-		modelValidationSetting model.ValidationScheme
 		expectValidationScheme model.ValidationScheme
 		expectEscapingScheme   model.EscapingScheme
 		expectErr              string
 	}{
 		{
-			name:                   "blank config, legacy defaults",
-			modelValidationSetting: model.LegacyValidation,
-			expectValidationScheme: model.LegacyValidation,
-			expectEscapingScheme:   model.UnderscoreEscaping,
-		},
-		{
 			name:                   "blank config, utf8 defaults",
-			modelValidationSetting: model.UTF8Validation,
 			expectValidationScheme: model.UTF8Validation,
 			expectEscapingScheme:   model.NoEscaping,
-		},
-		{
-			name: "legacy, asking for UTF-8 not allowed",
-			config: config.ScrapeConfig{
-				MetricNameEscapingScheme: "allow-utf-8",
-			},
-			modelValidationSetting: model.LegacyValidation,
-			expectErr:              "cannot request UTF-8 names when validation is set to Legacy",
 		},
 		{
 			name: "utf8, utf8 implies utf8",
 			config: config.ScrapeConfig{
 				MetricNameValidationScheme: "utf8",
 			},
-			modelValidationSetting: model.UTF8Validation,
 			expectValidationScheme: model.UTF8Validation,
 			expectEscapingScheme:   model.NoEscaping,
 		},
@@ -2916,17 +2894,8 @@ func TestSchemesFromConfig(t *testing.T) {
 				MetricNameValidationScheme: "utf8",
 				MetricNameEscapingScheme:   "underscores",
 			},
-			modelValidationSetting: model.UTF8Validation,
 			expectValidationScheme: model.UTF8Validation,
 			expectEscapingScheme:   model.UnderscoreEscaping,
-		},
-		{
-			name: "overriding model setting not allowed",
-			config: config.ScrapeConfig{
-				MetricNameValidationScheme: "utf8",
-			},
-			modelValidationSetting: model.LegacyValidation,
-			expectErr:              "cannot override library",
 		},
 		{
 			name: "bad validation value",
@@ -2946,7 +2915,6 @@ func TestSchemesFromConfig(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			model.NameValidationScheme = tc.modelValidationSetting
 			sp := &scrapePool{
 				config: &tc.config,
 			}

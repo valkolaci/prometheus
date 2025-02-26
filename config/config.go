@@ -854,9 +854,6 @@ func (c *ScrapeConfig) Validate(globalConfig GlobalConfig) error {
 
 	switch globalConfig.MetricNameEscapingScheme {
 	case model.AllowUTF8:
-		if model.NameValidationScheme != model.UTF8Validation {
-			return errors.New("utf8 name validation requested but model.NameValidationScheme is not set to UTF8")
-		}
 		if c.MetricNameValidationScheme != UTF8ValidationConfig {
 			return errors.New("utf8 metric names requested but validation scheme is not set to UTF8")
 		}

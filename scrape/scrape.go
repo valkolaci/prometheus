@@ -618,21 +618,9 @@ func (sp *scrapePool) refreshTargetLimitErr() error {
 }
 
 func (sp *scrapePool) schemesFromConfig() (validationScheme model.ValidationScheme, escapingScheme model.EscapingScheme, err error) {
-	// This is redundant to the config validation function but is easy to check anyway.
-	if model.NameValidationScheme == model.LegacyValidation && sp.config.MetricNameValidationScheme == config.UTF8ValidationConfig {
-		return model.LegacyValidation, model.UnderscoreEscaping, errors.New("cannot override library model.NameValidationScheme in config with allow-utf-8")
-	}
-
-	validationScheme = model.NameValidationScheme
-	if sp.config.MetricNameValidationScheme != "" {
-		switch sp.config.MetricNameValidationScheme {
-		case config.LegacyValidationConfig:
-			validationScheme = model.LegacyValidation
-		case config.UTF8ValidationConfig:
-			validationScheme = model.UTF8Validation
-		default:
-			return model.LegacyValidation, model.UnderscoreEscaping, fmt.Errorf("invalid metric name validation scheme, %s", sp.config.MetricNameValidationScheme)
-		}
+	validationScheme = model.UTF8Validation
+	if sp.config.MetricNameValidationScheme == config.LegacyValidationConfig {
+		validationScheme = model.LegacyValidation
 	}
 
 	switch validationScheme {
