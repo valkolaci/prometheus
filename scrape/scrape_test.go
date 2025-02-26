@@ -2899,15 +2899,15 @@ func TestSchemesFromConfig(t *testing.T) {
 			expectEscapingScheme:   model.NoEscaping,
 		},
 		{
-			name:                   "legacy, asking for UTF-8 not allowed",
+			name: "legacy, asking for UTF-8 not allowed",
 			config: config.ScrapeConfig{
 				MetricNameEscapingScheme: "allow-utf-8",
 			},
 			modelValidationSetting: model.LegacyValidation,
-			expectErr: "cannot request UTF-8 names when validation is set to Legacy",
+			expectErr:              "cannot request UTF-8 names when validation is set to Legacy",
 		},
 		{
-			name:                   "utf8, utf8 implies utf8",
+			name: "utf8, utf8 implies utf8",
 			config: config.ScrapeConfig{
 				MetricNameValidationScheme: "utf8",
 			},
@@ -2916,32 +2916,32 @@ func TestSchemesFromConfig(t *testing.T) {
 			expectEscapingScheme:   model.NoEscaping,
 		},
 		{
-			name:                   "utf8 overridden to ask for underscores",
+			name: "utf8 overridden to ask for underscores",
 			config: config.ScrapeConfig{
 				MetricNameValidationScheme: "utf8",
-				MetricNameEscapingScheme: "underscores",
+				MetricNameEscapingScheme:   "underscores",
 			},
 			modelValidationSetting: model.UTF8Validation,
 			expectValidationScheme: model.UTF8Validation,
 			expectEscapingScheme:   model.UnderscoreEscaping,
 		},
 		{
-			name:                   "overriding model setting not allowed",
+			name: "overriding model setting not allowed",
 			config: config.ScrapeConfig{
 				MetricNameValidationScheme: "utf8",
 			},
 			modelValidationSetting: model.LegacyValidation,
-			expectErr: "cannot override library",
+			expectErr:              "cannot override library",
 		},
 		{
-			name:                   "bad validation value",
+			name: "bad validation value",
 			config: config.ScrapeConfig{
 				MetricNameValidationScheme: "not a thing",
 			},
 			expectErr: "invalid metric name validation scheme",
 		},
 		{
-			name:                   "bad escaping value",
+			name: "bad escaping value",
 			config: config.ScrapeConfig{
 				MetricNameEscapingScheme: "not a thing",
 			},
@@ -2963,41 +2963,41 @@ func TestSchemesFromConfig(t *testing.T) {
 			} else {
 				require.Error(t, gotErr)
 				require.ErrorContains(t, gotErr, tc.expectErr)
-			} 
+			}
 		})
 	}
 }
 
 func TestAcceptHeader(t *testing.T) {
 	tests := []struct {
-		name           string
+		name            string
 		scrapeProtocols []config.ScrapeProtocol
-		scheme         model.EscapingScheme
-		expectedHeader string
+		scheme          model.EscapingScheme
+		expectedHeader  string
 	}{
 		{
-			name:           "default scrape protocols with underscore escaping",
+			name:            "default scrape protocols with underscore escaping",
 			scrapeProtocols: config.DefaultScrapeProtocols,
-			scheme:         model.UnderscoreEscaping,
-			expectedHeader: "application/openmetrics-text;version=1.0.0;escaping=underscores;q=0.6,application/openmetrics-text;version=0.0.1;q=0.5,text/plain;version=1.0.0;escaping=underscores;q=0.4,text/plain;version=0.0.4;q=0.3,*/*;q=0.2",
+			scheme:          model.UnderscoreEscaping,
+			expectedHeader:  "application/openmetrics-text;version=1.0.0;escaping=underscores;q=0.6,application/openmetrics-text;version=0.0.1;q=0.5,text/plain;version=1.0.0;escaping=underscores;q=0.4,text/plain;version=0.0.4;q=0.3,*/*;q=0.2",
 		},
 		{
-			name:           "default proto first scrape protocols with underscore escaping",
+			name:            "default proto first scrape protocols with underscore escaping",
 			scrapeProtocols: config.DefaultProtoFirstScrapeProtocols,
-			scheme:         model.DotsEscaping,
-			expectedHeader: "application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;q=0.6,application/openmetrics-text;version=1.0.0;escaping=dots;q=0.5,application/openmetrics-text;version=0.0.1;q=0.4,text/plain;version=1.0.0;escaping=dots;q=0.3,text/plain;version=0.0.4;q=0.2,*/*;q=0.1",
+			scheme:          model.DotsEscaping,
+			expectedHeader:  "application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;q=0.6,application/openmetrics-text;version=1.0.0;escaping=dots;q=0.5,application/openmetrics-text;version=0.0.1;q=0.4,text/plain;version=1.0.0;escaping=dots;q=0.3,text/plain;version=0.0.4;q=0.2,*/*;q=0.1",
 		},
 		{
-			name:           "default scrape protocols with no escaping",
+			name:            "default scrape protocols with no escaping",
 			scrapeProtocols: config.DefaultScrapeProtocols,
-			scheme:         model.NoEscaping,
-			expectedHeader: "application/openmetrics-text;version=1.0.0;escaping=allow-utf-8;q=0.6,application/openmetrics-text;version=0.0.1;q=0.5,text/plain;version=1.0.0;escaping=allow-utf-8;q=0.4,text/plain;version=0.0.4;q=0.3,*/*;q=0.2",
+			scheme:          model.NoEscaping,
+			expectedHeader:  "application/openmetrics-text;version=1.0.0;escaping=allow-utf-8;q=0.6,application/openmetrics-text;version=0.0.1;q=0.5,text/plain;version=1.0.0;escaping=allow-utf-8;q=0.4,text/plain;version=0.0.4;q=0.3,*/*;q=0.2",
 		},
 		{
-			name:           "default proto first scrape protocols with no escaping",
+			name:            "default proto first scrape protocols with no escaping",
 			scrapeProtocols: config.DefaultProtoFirstScrapeProtocols,
-			scheme:         model.NoEscaping,
-			expectedHeader: "application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;q=0.6,application/openmetrics-text;version=1.0.0;escaping=allow-utf-8;q=0.5,application/openmetrics-text;version=0.0.1;q=0.4,text/plain;version=1.0.0;escaping=allow-utf-8;q=0.3,text/plain;version=0.0.4;q=0.2,*/*;q=0.1",
+			scheme:          model.NoEscaping,
+			expectedHeader:  "application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;q=0.6,application/openmetrics-text;version=1.0.0;escaping=allow-utf-8;q=0.5,application/openmetrics-text;version=0.0.1;q=0.4,text/plain;version=1.0.0;escaping=allow-utf-8;q=0.3,text/plain;version=0.0.4;q=0.2,*/*;q=0.1",
 		},
 	}
 
